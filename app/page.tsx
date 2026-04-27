@@ -13,8 +13,16 @@ interface Message {
 interface Conversation {
   id: string
   title: string
+  project_id?: string
   created_at: string
   updated_at: string
+}
+
+interface Project {
+  id: string
+  name: string
+  type: string
+  created_at: string
 }
 
 interface Template {
@@ -312,6 +320,8 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null)
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [conversations, setConversations] = useState<Conversation[]>([])
+  const [projects, setProjects] = useState<Project[]>([])
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
   const [templates, setTemplates] = useState<Template[]>(DEFAULT_TEMPLATES)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
@@ -335,9 +345,15 @@ export default function Home() {
   useEffect(() => {
     console.log('Loading data on mount...')
     console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
+    loadProjects()
     loadConversations()
     loadTemplates()
   }, [])
+
+  // Reload conversations when project changes
+  useEffect(() => {
+    loadConversations()
+  }, [selectedProjectId])
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -352,14 +368,48 @@ export default function Home() {
     }
   }, [input])
 
+  const loadProjects = async () => {
+    try {
+      console.log('Loading projects from Supabase...')
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('created_at', { ascending: true })
+
+      if (error) {
+        console.error('Supabase error loading projects:', error)
+        throw error
+      }
+      console.log('Loaded projects:', data?.length || 0)
+      setProjects(data || [])
+      
+      // Auto-select General project if exists and no project selected
+      if (!selectedProjectId && data && data.length > 0) {
+        const generalProject = data.find(p => p.type === 'default')
+        if (generalProject) {
+          setSelectedProjectId(generalProject.id)
+        }
+      }
+    } catch (err) {
+      console.error('Error loading projects:', err)
+    }
+  }
+
   const loadConversations = async () => {
     try {
       console.log('Loading conversations from Supabase...')
-      const { data, error } = await supabase
+      let query = supabase
         .from('conversations')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(50)
+
+      // Filter by project if one is selected
+      if (selectedProjectId) {
+        query = query.eq('project_id', selectedProjectId)
+      }
+
+      const { data, error } = await query
 
       if (error) {
         console.error('Supabase error loading conversations:', error)
@@ -369,6 +419,29 @@ export default function Home() {
       setConversations(data || [])
     } catch (err) {
       console.error('Error loading conversations:', err)
+    }
+  }
+
+  const createProject = async (name: string, type: string = 'general') => {
+    try {
+      console.log('Creating project:', name)
+      const { data, error } = await supabase
+        .from('projects')
+        .insert({ name, type })
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Supabase error creating project:', error)
+        throw error
+      }
+      console.log('Created project:', data.id)
+      loadProjects()
+      setSelectedProjectId(data.id)
+      return data.id
+    } catch (err) {
+      console.error('Error creating project:', err)
+      return null
     }
   }
 
@@ -392,9 +465,12 @@ export default function Home() {
   const createConversation = async (title: string) => {
     try {
       console.log('Creating conversation:', title)
-      const { data, error } = await supabase
+      const { data, error} = await supabase
         .from('conversations')
-        .insert({ title })
+        .insert({ 
+          title,
+          project_id: selectedProjectId 
+        })
         .select()
         .single()
 
@@ -580,6 +656,40 @@ export default function Home() {
             </svg>
             New Chat
           </button>
+        </div>
+
+        {/* Projects Section */}
+        <div className="px-4 pb-4 border-b border-slate-800">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Projects</h3>
+            <button
+              onClick={() => {
+                const name = prompt('Project name:')
+                if (name) createProject(name)
+              }}
+              className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+            >
+              + New
+            </button>
+          </div>
+          <div className="space-y-1">
+            {projects.map((project) => (
+              <button
+                key={project.id}
+                onClick={() => setSelectedProjectId(project.id)}
+                className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                  selectedProjectId === project.id 
+                    ? 'bg-blue-600/20 text-blue-300 border border-blue-600/30' 
+                    : 'hover:bg-slate-800/50 text-slate-400'
+                }`}
+              >
+                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                </svg>
+                <span className="text-sm font-medium truncate">{project.name}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Templates Section */}

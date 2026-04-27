@@ -1,7 +1,16 @@
+-- Create projects table
+CREATE TABLE IF NOT EXISTS projects (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  type TEXT DEFAULT 'general',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Create conversations table
 CREATE TABLE IF NOT EXISTS conversations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title TEXT,
+  project_id UUID REFERENCES projects(id) ON DELETE SET NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -27,6 +36,10 @@ CREATE TABLE IF NOT EXISTS templates (
 -- Create index for faster conversation lookups
 CREATE INDEX IF NOT EXISTS idx_messages_conversation_id ON messages(conversation_id);
 CREATE INDEX IF NOT EXISTS idx_conversations_updated_at ON conversations(updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_conversations_project_id ON conversations(project_id);
+
+-- Insert default General project
+INSERT INTO projects (name, type) VALUES ('General', 'default') ON CONFLICT DO NOTHING;
 
 -- Insert default templates
 INSERT INTO templates (name, content, category) VALUES
