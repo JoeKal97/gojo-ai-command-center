@@ -47,6 +47,260 @@ const DEFAULT_TEMPLATES: Template[] = [
     name: 'Local Business Audit',
     content: 'Perform a comprehensive local business audit for [BUSINESS NAME] in [CITY]. Analyze: Google Business Profile optimization, local SEO factors, online reputation, website mobile-friendliness, and provide actionable recommendations.',
     category: 'Audit'
+  },
+  {
+    id: '5',
+    name: 'Blog Post / Service Page',
+    content: `Generate high-quality, SEO-optimized blog posts or service pages with full AEO (AI Engine Optimization) structure and ready-to-use schema markup.
+
+## INPUT REQUIRED
+
+- Content Type: Blog Post OR Service Page
+- Primary Keyword: Main target keyword
+- Business Name: Company/brand name
+- Business Location: City, State
+- Business Contact: Phone, Email, Website URL
+- Target Audience: Who is this for?
+- Key Services/Products: (for service pages)
+- Unique Value Proposition: What makes this business different?
+
+## OUTPUT STRUCTURE
+
+### 1. METADATA BLOCK
+Title Tag: [Primary Keyword] | [Business Name]
+Meta Description: [150-160 characters with keyword + CTA]
+URL Slug: [keyword-optimized-slug]
+Estimated Read Time: [X minutes]
+
+### 2. CONTENT BODY
+
+For Blog Posts:
+H1: [Primary Keyword in Natural Headline]
+
+Introduction (2-3 paragraphs)
+- Hook with problem or promise
+- Include primary keyword in first 100 words
+- Preview what reader will learn
+
+H2: [Cluster Keyword 1]
+- 2-3 paragraphs
+- Sub-bullet points for scannability
+- Include related keyword naturally
+
+H2: [Cluster Keyword 2]
+- 2-3 paragraphs
+- Practical examples or case study
+- Data or statistics if available
+
+H2: [Cluster Keyword 3]
+- 2-3 paragraphs
+- Actionable advice
+- Common mistakes to avoid
+
+H2: How to Get Started / Next Steps
+- Clear CTA
+- Contact information
+- Link to related service page
+
+Conclusion (1 paragraph)
+- Summarize key takeaway
+- Reinforce main benefit
+- Final CTA
+
+For Service Pages:
+H1: [Service Name] in [Location] | [Business Name]
+
+Hero Section (2-3 paragraphs)
+- Service overview with primary keyword
+- Unique value proposition
+- Trust signal (years in business, clients served, etc.)
+
+H2: Why Choose [Business Name] for [Service]
+- 3-4 bullet points of differentiators
+- Local expertise emphasis
+
+H2: Our [Service] Process
+- Numbered steps (3-5 steps)
+- Clear, jargon-free language
+- Timeline expectations
+
+H2: Who This Service Is For
+- Ideal client description
+- Problem scenarios
+- Outcome expectations
+
+H2: [Service] Benefits
+- 4-6 benefit bullets
+- Mix of tangible and emotional benefits
+
+H2: Service Areas
+- List of locations served
+- Local landmarks mentioned naturally
+
+H2: Frequently Asked Questions
+- 3-5 Q&A pairs (see AEO Block below)
+
+H2: Get Started Today
+- Strong CTA
+- Phone number (clickable)
+- Contact form or link
+- Hours of operation
+
+### 3. AEO BLOCK (FAQ SECTION)
+
+Q: [Natural language question with primary/cluster keyword]
+A: [1-3 sentence answer, snippet-optimized, specific and actionable]
+
+Q: [Related question with local modifier if applicable]
+A: [Clear, direct answer with specific information]
+
+Q: [Comparison or "how much" question]
+A: [Transparent answer with range or factors]
+
+### 4. INTERNAL LINKING SUGGESTIONS
+- Link to: [Related blog post URL placeholder]
+- Link to: [Related service page URL placeholder]
+- Link to: [Contact/About page URL placeholder]
+
+Anchor text suggestions:
+- [keyword-rich anchor text]
+- [natural phrase with keyword]
+
+### 5. IMAGE RECOMMENDATIONS
+- Featured Image: [Description with keyword in alt text suggestion]
+- Body Image 1: [Description]
+- Body Image 2: [Description]
+- Infographic: [If applicable - data visualization suggestion]
+
+## SCHEMA MARKUP (JSON-LD)
+
+### FAQ Schema
+\`\`\`json
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "[FAQ Question 1]",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "[FAQ Answer 1]"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "[FAQ Question 2]",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "[FAQ Answer 2]"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "[FAQ Question 3]",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "[FAQ Answer 3]"
+      }
+    }
+  ]
+}
+\`\`\`
+
+### Article Schema (if blog)
+\`\`\`json
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "[H1 Title]",
+  "description": "[Meta Description]",
+  "image": "[Featured Image URL]",
+  "author": {
+    "@type": "Organization",
+    "name": "[Business Name]"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "[Business Name]",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "[Logo URL]"
+    }
+  },
+  "datePublished": "[YYYY-MM-DD]",
+  "dateModified": "[YYYY-MM-DD]",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "[Page URL]"
+  }
+}
+\`\`\`
+
+### LocalBusiness / Service Schema (if service page)
+\`\`\`json
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "[Business Name]",
+  "image": "[Business Image URL]",
+  "@id": "[Website URL]",
+  "url": "[Website URL]",
+  "telephone": "[Phone Number]",
+  "email": "[Email Address]",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "[Street Address]",
+    "addressLocality": "[City]",
+    "addressRegion": "[State]",
+    "postalCode": "[ZIP Code]",
+    "addressCountry": "US"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": "[Latitude]",
+    "longitude": "[Longitude]"
+  },
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      "opens": "[Opening Time]",
+      "closes": "[Closing Time]"
+    }
+  ],
+  "priceRange": "$$",
+  "areaServed": {
+    "@type": "City",
+    "name": "[Primary Service Area]"
+  },
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Services",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "[Service Name]",
+          "description": "[Service Description]"
+        }
+      }
+    ]
+  }
+}
+\`\`\`
+
+## QUALITY CHECKLIST
+- Primary keyword in H1, first paragraph, and at least one H2
+- All business information is accurate (no placeholders)
+- FAQ answers are snippet-ready (1-3 sentences, direct)
+- Schema markup is valid JSON with no syntax errors
+- All URLs in schema are absolute (https://...)
+- Local modifiers included for service pages (city, neighborhood)
+- CTA is clear and contact info is correct
+- Word count: Blog (800-1500 words) / Service Page (600-1200 words)`,
+    category: 'AEO Content'
   }
 ]
 

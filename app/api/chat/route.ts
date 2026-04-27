@@ -10,7 +10,7 @@ const MAX_PROMPT_LENGTH = 4000
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages, model = 'claude-sonnet-4-5-20250929' } = await req.json()
+    const { messages, model = 'claude-sonnet-4-6' } = await req.json()
 
     // Validation
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
