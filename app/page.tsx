@@ -14,6 +14,7 @@ interface Conversation {
   id: string
   title: string
   created_at: string
+  updated_at: string
 }
 
 interface Template {
@@ -332,11 +333,10 @@ export default function Home() {
 
   // Load conversations on mount
   useEffect(() => {
-    // Only load data if Supabase is configured
-    if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== 'http://localhost:54321') {
-      loadConversations()
-      loadTemplates()
-    }
+    console.log('Loading data on mount...')
+    console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
+    loadConversations()
+    loadTemplates()
   }, [])
 
   // Auto-scroll to bottom
@@ -354,13 +354,18 @@ export default function Home() {
 
   const loadConversations = async () => {
     try {
+      console.log('Loading conversations from Supabase...')
       const { data, error } = await supabase
         .from('conversations')
         .select('*')
-        .order('updated_at', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(50)
 
-      if (error) throw error
+      if (error) {
+        console.error('Supabase error loading conversations:', error)
+        throw error
+      }
+      console.log('Loaded conversations:', data?.length || 0)
       setConversations(data || [])
     } catch (err) {
       console.error('Error loading conversations:', err)
@@ -386,13 +391,18 @@ export default function Home() {
 
   const createConversation = async (title: string) => {
     try {
+      console.log('Creating conversation:', title)
       const { data, error } = await supabase
         .from('conversations')
         .insert({ title })
         .select()
         .single()
 
-      if (error) throw error
+      if (error) {
+        console.error('Supabase error creating conversation:', error)
+        throw error
+      }
+      console.log('Created conversation:', data.id)
       setConversationId(data.id)
       loadConversations()
       return data.id
@@ -404,11 +414,16 @@ export default function Home() {
 
   const saveMessage = async (conversationId: string, role: string, content: string) => {
     try {
+      console.log('Saving message:', { conversationId, role, contentLength: content.length })
       const { error } = await supabase
         .from('messages')
         .insert({ conversation_id: conversationId, role, content })
 
-      if (error) throw error
+      if (error) {
+        console.error('Supabase error saving message:', error)
+        throw error
+      }
+      console.log('Message saved successfully')
     } catch (err) {
       console.error('Error saving message:', err)
     }
@@ -416,6 +431,7 @@ export default function Home() {
 
   const loadConversation = async (id: string) => {
     try {
+      console.log('Loading conversation:', id)
       setIsLoading(true)
       const { data, error } = await supabase
         .from('messages')
@@ -423,8 +439,12 @@ export default function Home() {
         .eq('conversation_id', id)
         .order('created_at', { ascending: true })
 
-      if (error) throw error
+      if (error) {
+        console.error('Supabase error loading conversation:', error)
+        throw error
+      }
       
+      console.log('Loaded messages:', data?.length || 0)
       setMessages(data || [])
       setConversationId(id)
       if (isMobile) setSidebarOpen(false)
